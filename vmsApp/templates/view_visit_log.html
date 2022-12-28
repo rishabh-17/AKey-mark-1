@@ -1,0 +1,32 @@
+{% load qr_code %} {% load static %} {% load humanize %}
+<style>
+    #uni_modal .modal-footer {
+        display: none
+    }
+    
+    #uni_modal .modal-sub-footer {
+        display: flex
+    }
+</style>
+<div class="container-fluid" id="e-details">
+    <div class="lh-1">
+        <dl>
+            <dt>Employee Department</dt>
+            <dd class="ps-4">{{Employee.department}}</dd>
+            <dt>Employee Name</dt>
+            <dd class="ps-4">{{Employee.name}}</dd>
+            <dt>Gender</dt>
+            <dd class="ps-4">{{Employee.gender}}</dd>
+            <dt>Contact #</dt>
+            <dd class="ps-4">{{Employee.contact}}</dd>
+            <dt>Email</dt>
+            <dd class="ps-4">{{Employee.email}}</dd>
+            <dt>Address</dt>
+            <dd class="ps-4">{{Employee.address}}</dd>
+     
+            
+            <dt>Date and Time Logged</dt>
+            <dd class="ps-4">{{Employee.date_added|date:"F d, Y h:i A"}}</dd>
+        </dl>
+    </div>
+</div>

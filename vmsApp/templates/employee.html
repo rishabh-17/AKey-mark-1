@@ -1,0 +1,151 @@
+{% extends 'base.html' %} {% load static %} {% block pageContent %}
+<section class="py-4">
+    <div class="container">
+        <h3 class="fw-bolder text-center">List of Employees</h3>
+        <center>
+            <hr class="bg-primary opacity-100" style="height:3px" width="5%">
+        </center>
+        <div class="card rounded-0 shadow">
+            <div class="card-body">
+                <div class="container-fluid">
+                    <div class="text-end mb-3">
+                        <button class="btn btn-sm btn-primary rounded-0 bg-gradient-primary" type="button" id="create_new"><i class="fa fa-plus"></i> Add New</button>
+                    </div>
+                    <table class="table table-bordered table-striped" id="employee-tbl">
+                        <colgroup>
+                            <col width="5%">
+                            <col width="15%">
+                            <col width="15%">
+                            <col width="20%">
+                            <col width="15%">
+                            <col width="15%">
+                            <col width="15%">
+
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th class="text-center">#</th>
+                                <th class="text-center">Name</th>
+                                <th class="text-center">Contact</th>
+                                <th class="text-center">Employee Department</th>
+                                <th class="text-center">logs</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for Employee in Employees %}
+                            <tr>
+                                <td class="text-center">{{ forloop.counter }}</td>
+                                <td>{{ Employee.name}}</td>
+                                <td>{{ Employee.contact}}</td>
+                                <td>{{ Employee.department.name }}</td>
+                                <td><select type="text" id="status" name="status" class="form-select form-select-sm rounded-0" required>
+                                    {% if Employee.status == '1' %}
+                                    <option value ="1" selected>No</option>
+                                    {% else %}
+                                    <option value ="1">No</option>
+                                    {% endif %}
+                                    {% if Employee.status == '2' %}
+                                    <option value="2" selected>Yes</option>
+                                    {% else  %}
+                                    <option value="2">Yes</option>
+                                    {% endif %}
+                                </select></td>
+                                <td>
+                                <form>
+                                    
+                                </form>
+                                </td>
+                                <td class="text-center">
+                                    <div class="dropdown">
+                                        <button class="btn btn-light btn-sm rounded-0 border dropdown-toggle" type="button" id="abtn{{Employee.pk}}" data-bs-toggle="dropdown" aria-expanded="false">
+                                          Action
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="abtn{{Employee.pk}}">
+                                            <li><a class="dropdown-item view-data" href="javascript:void(0)" data-url="{% url 'view-Employee-pk' Employee.pk %}"><i class="fa fa-eye text-light"></i> View</a></li>
+                                            <li><a class="dropdown-item edit-data" href="javascript:void(0)" data-url="{% url 'manage-Employee-pk' Employee.pk %}"><i class="fa fa-edit text-primary"></i> Edit</a></li>
+                                            <li><a class="dropdown-item delete-data" href="javascript:void(0)" data-url="{% url 'delete-Employee' Employee.pk %}"><i class="fa fa-trash text-danger"></i> Delete</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock pageContent %} {% block ScriptBlock %}
+<script>
+    $(function() {
+        $('#create_new').click(function() {
+            uni_modal("<i class='fa fa-plus'></i> Add New Employee", "{% url 'manage-Employee' %}")
+        })
+        $('.edit-data').click(function() {
+            uni_modal("<i class='fa fa-edit'></i> Edit Employee Details", $(this).attr('data-url'))
+        })
+        $('.view-data').click(function() {
+            uni_modal("<i class='fa fa-th-list'></i> Employee Details", $(this).attr('data-url'))
+        })
+        $('.view_image').click(function() {
+            var img = $(this).attr('data-img-url')
+            $('#viewer_modal #img-viewer-field').attr('src', img)
+            $('#viewer_modal').modal('show')
+        })
+        $('.delete-data').click(function() {
+            _conf("Are you sure to delete this Employee Log?", 'delete_Employee', ["'" + $(this).attr('data-url') + "'"])
+        })
+        $('#Employee-tbl').find('td, th').addClass('px-2 py-1 align-middle')
+        $('#Employee-tbl').DataTable({
+            columnDefs: [{
+                orderable: false,
+                targets: [4]
+            }],
+            lengthMenu: [
+                [25, 50, 100, -1],
+                [25, 50, 100, "All"]
+            ]
+        })
+    })
+
+    function delete_Employee(url) {
+
+        var _this = $('#confirm_modal .modal-body')
+        $('.err-msg').remove();
+        var el = $('<div>')
+        el.addClass("alert alert-danger err-msg")
+        el.hide()
+        start_loader()
+        $.ajax({
+            headers: {
+                "X-CSRFToken": "{{csrf_token}}"
+            },
+            url: url,
+            dataType: 'JSON',
+            error: err => {
+                console.log(err)
+                alert("an error occurred.")
+                end_loader()
+            },
+            success: function(resp) {
+                if (resp.status == 'success') {
+                    location.reload()
+                } else if (!!resp.msg) {
+                    el.html(resp.msg)
+                    _this.prepend(el)
+                    el.show()
+                } else {
+                    el.html("An error occurred")
+                    _this.prepend(el)
+                    el.show()
+                }
+                end_loader()
+            }
+
+        })
+    }
+</script>
+{% endblock ScriptBlock %}
